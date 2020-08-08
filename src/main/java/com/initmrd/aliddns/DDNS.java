@@ -20,12 +20,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DDNS {
-    @Value("${domain}")
-    String domain;
-    @Value("${accessKeyID}")
-    String accessKeyId;
-    @Value("${accessKeySecret}")
-    String accessKeySecret;
 
 
     /**
@@ -47,7 +41,7 @@ public class DDNS {
      */
     private String getCurrenHostIP() {
         // 这里使用jsonip.com第三方接口获取本地IP
-        String jsonip = "https://jsonip.com";
+        String jsonip = "http://members.3322.org/dyndns/getip";
         // 接口返回结果
         String result = "";
         BufferedReader in = null;
@@ -107,16 +101,19 @@ public class DDNS {
         System.out.println(gson.toJson(result));
     }
 
-    public void run() {
+    public void run(String domain, String accessKeyId, String accessKeySecret) {
+        System.out.println("-------------------------------" + "domain:" + domain + "-------------------------------");
+        System.out.println("-------------------------------" + "accessKeyId:" + accessKeyId + "-------------------------------");
+        System.out.println("-------------------------------" + "accessKeySecret:" + accessKeySecret + "-------------------------------");
         //  设置鉴权参数，初始化客户端
         DefaultProfile profile = DefaultProfile.getProfile("cn-hangzhou",// 地域ID
-                this.accessKeyId,// 您的AccessKey ID
-                this.accessKeySecret);// 您的AccessKey Secret
+                accessKeyId,// 您的AccessKey ID
+                accessKeySecret);// 您的AccessKey Secret
         IAcsClient client = new DefaultAcsClient(profile);
         DDNS ddns = new DDNS();
         //查询指定二级域名的最新解析记录
         DescribeSubDomainRecordsRequest describeSubDomainRecordsRequest = new DescribeSubDomainRecordsRequest();
-        describeSubDomainRecordsRequest.setSubDomain(this.domain);
+        describeSubDomainRecordsRequest.setSubDomain(domain);
         DescribeSubDomainRecordsResponse describeSubDomainRecordsResponse = ddns.describeSubDomainRecords(describeSubDomainRecordsRequest, client);
         log_print("describeSubDomainRecords", describeSubDomainRecordsResponse);
         List<DescribeSubDomainRecordsResponse.Record> domainRecords = describeSubDomainRecordsResponse.getDomainRecords();
